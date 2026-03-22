@@ -19,6 +19,16 @@ def main():
         
         elif func == "pwd":
             sys.stdout.write(os.getcwd() + "\n")
+            
+        elif func == "cd":
+            if not arg:
+                continue
+            
+            path = arg[0]
+            if os.path.isdir(path):
+                os.chdir(path)
+            else:
+                sys.stdout.write(f"cd: {path}: No such file or directory \n")
 
         elif func == "type":
             if not arg:
