@@ -17,6 +17,9 @@ def main():
         elif func == "echo":
             sys.stdout.write(" ".join(arg) + "\n")
         
+        elif func == "pwd":
+            sys.stdout.write(os.getcwd() + "\n")
+
         elif func == "type":
             if not arg:
                 continue
