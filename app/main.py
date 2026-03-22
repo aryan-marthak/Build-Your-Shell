@@ -1,19 +1,40 @@
 import sys
+import os
 
+builtin = ["echo", "type", "exit"]
 
 def main():
     while True:
         sys.stdout.write("$ ")
         command = input()
-        if command == "exit":
+        func = command.split()[0]
+        arg = command.split()[1:]
+        
+        if func == "exit":
             break
-        elif command.startswith("echo "):
-            sys.stdout.write(command[5:] + "\n")
-        elif command.startswith("type "):
-            if command[5:] in ["echo", "type", "exit"]:
-                sys.stdout.write(f"{command[5:]} is a shell builtin \n")
+        
+        elif func == "echo":
+            sys.stdout.write(" ".join(arg) + "\n")
+        
+        elif func == "type":
+            if not arg:
+                continue
+            
+            if arg[0] in builtin:
+                sys.stdout.write(f"{arg[0]} is a shell builtin \n")
+            
             else:
-                sys.stdout.write(f"{command[5:]}: not found \n")
+                path_env = os.environ.get("PATH", "")
+                
+                for i in path_env.split(os.pathsep):
+                    full_path = os.path.join(i, arg[0])
+                
+                    if os.path.isfile(full_path) and os.acess(full_path, os.X_OK):
+                        sys.stdout.write(f"{arg[0]} is {full_path} \n")
+                        break
+                else:
+                    sys.stdout.write(f"{arg[0]}: not found \n")
+
         else:
             sys.stdout.write(f"{command}: command not found \n")
 
