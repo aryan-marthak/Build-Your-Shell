@@ -2,7 +2,7 @@ import sys
 import os
 import subprocess
 
-builtin = ["echo", "type", "exit"]
+builtin = ["echo", "type", "exit", "pwd"]
 
 def main():
     while True:
