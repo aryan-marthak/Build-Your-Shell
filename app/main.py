@@ -29,7 +29,7 @@ def main():
                 for i in path_env.split(os.pathsep):
                     full_path = os.path.join(i, arg[0])
                 
-                    if os.path.isfile(full_path) and os.acess(full_path, os.X_OK):
+                    if os.path.isfile(full_path) and os.access(full_path, os.X_OK):
                         sys.stdout.write(f"{arg[0]} is {full_path} \n")
                         break
                 else:
