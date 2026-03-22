@@ -27,6 +27,9 @@ def main():
             path = arg[0]
             if os.path.isdir(path):
                 os.chdir(path)
+            elif path == "~":
+                home = os.getenv("HOME")
+                os.chdir(home)
             else:
                 sys.stdout.write(f"cd: {path}: No such file or directory \n")
 
