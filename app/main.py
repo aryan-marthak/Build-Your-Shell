@@ -1,5 +1,6 @@
 import sys
 import os
+import subprocess
 
 builtin = ["echo", "type", "exit"]
 
@@ -34,9 +35,17 @@ def main():
                         break
                 else:
                     sys.stdout.write(f"{arg[0]}: not found \n")
-
+                    
         else:
-            sys.stdout.write(f"{command}: command not found \n")
+            path_env = os.environ.get("PATH", "")
+            for i in path_env.split(os.pathsep):
+                full_path = os.path.join(i, func)
+                
+                if os.path.isfile(full_path) and os.access(full_path, os.X_OK):
+                    subprocess.run([full_path] + arg)
+                    break
+            else:
+                sys.stdout.write(f"{command}: command not found \n")
 
 
 if __name__ == "__main__":
