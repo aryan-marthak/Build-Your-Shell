@@ -1,6 +1,7 @@
 import sys
 import os
 import subprocess
+import shlex
 
 builtin = ["echo", "type", "exit", "pwd"]
 
@@ -8,8 +9,13 @@ def main():
     while True:
         sys.stdout.write("$ ")
         command = input()
-        func = command.split()[0]
-        arg = command.split()[1:]
+        
+        parts = shlex.split(command)
+        if not parts:
+            continue
+        
+        func = parts[0]
+        arg = parts[1:]
         
         if func == "exit":
             break
