@@ -13,7 +13,7 @@ def main():
             if command[5:] in ["echo", "type", "exit"]:
                 sys.stdout.write(f"{command[5:]} is a shell builtin \n")
             else:
-                sys.stdout.write(f"{command[5:]} is not found \n")
+                sys.stdout.write(f"{command[5:]}: not found \n")
         else:
             sys.stdout.write(f"{command}: command not found \n")
 
