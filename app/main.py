@@ -42,7 +42,7 @@ def main():
                 full_path = os.path.join(i, func)
                 
                 if os.path.isfile(full_path) and os.access(full_path, os.X_OK):
-                    subprocess.run([full_path] + arg)
+                    subprocess.run([func] + arg, executable=full_path)
                     break
             else:
                 sys.stdout.write(f"{func}: command not found \n")
