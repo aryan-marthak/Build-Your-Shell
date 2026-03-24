@@ -40,17 +40,28 @@ def main():
             continue
         
         out = None
+        err = None
         for i, v in enumerate(parts):
             if v in (">", "1>"):
                 out = parts[i + 1]
                 parts = parts[:i]
                 break
+            
+            elif v in ("2>"):
+                err = parts[i + 1]
+                parts = parts[:i]
+                break
         
         output_stream = None
+        error_stream = None
         if out:
             output_stream = open(out, "w")
         else:
             output_stream = sys.stdout
+        if err:
+            error_stream = open(err, "w")
+        else:
+            error_stream = sys.stderr
         
         func = parts[0]
         arg = parts[1:]
@@ -75,7 +86,7 @@ def main():
                 home = os.getenv("HOME")
                 os.chdir(home)
             else:
-                sys.stdout.write(f"cd: {path}: No such file or directory \n")
+                error_stream.write(f"cd: {path}: No such file or directory \n")
 
         elif func == "type":
             if not arg:
@@ -94,7 +105,7 @@ def main():
                         output_stream.write(f"{arg[0]} is {full_path} \n")
                         break
                 else:
-                    sys.stdout.write(f"{arg[0]}: not found \n")
+                    error_stream.write(f"{arg[0]}: not found \n")
                     
         else:
             path_env = os.environ.get("PATH", "")
@@ -102,10 +113,10 @@ def main():
                 full_path = os.path.join(i, func)
                 
                 if os.path.isfile(full_path) and os.access(full_path, os.X_OK):
-                    subprocess.run([func] + arg, executable=full_path, stdout = output_stream)
+                    subprocess.run([func] + arg, executable=full_path, stdout = output_stream, stderr = error_stream)
                     break
             else:
-                sys.stdout.write(f"{func}: command not found \n")
+                error_stream.write(f"{func}: command not found \n")
         
         if out:
             output_stream.close()
