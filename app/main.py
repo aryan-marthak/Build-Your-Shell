@@ -3,16 +3,54 @@ import os
 import subprocess
 import shlex
 
-builtin = ["echo", "type", "exit", "pwd"]
+builtin = ["echo", "type", "exit", "pwd", "cd"]
+
+# HOW SHLEX WORKS 
+
+# def parse_command(s):
+#     result = []
+#     current = ""
+#     in_quotes = False
+
+#     for ch in s:
+#         if ch == "'":
+#             in_quotes = not in_quotes
+
+#         elif ch == " " and not in_quotes:
+#             if current:
+#                 result.append(current)
+#                 current = ""
+
+#         else:
+#             current += ch
+
+#     if current:
+#         result.append(current)
+
+#     return result
 
 def main():
     while True:
         sys.stdout.write("$ ")
         command = input()
         
+        # parts = parse_command(s)
         parts = shlex.split(command)
         if not parts:
             continue
+        
+        out = None
+        for i, v in enumerate(parts):
+            if v in (">", "1>"):
+                out = parts[i + 1]
+                parts = parts[:i]
+                break
+        
+        output_stream = None
+        if out:
+            output_stream = open(out, "w")
+        else:
+            output_stream = sys.stdout
         
         func = parts[0]
         arg = parts[1:]
@@ -21,10 +59,10 @@ def main():
             break
         
         elif func == "echo":
-            sys.stdout.write(" ".join(arg) + "\n")
+            output_stream.write(" ".join(arg) + "\n")
         
         elif func == "pwd":
-            sys.stdout.write(os.getcwd() + "\n")
+            output_stream.write(os.getcwd() + "\n")
             
         elif func == "cd":
             if not arg:
@@ -44,7 +82,7 @@ def main():
                 continue
             
             if arg[0] in builtin:
-                sys.stdout.write(f"{arg[0]} is a shell builtin \n")
+                output_stream.write(f"{arg[0]} is a shell builtin \n")
             
             else:
                 path_env = os.environ.get("PATH", "")
@@ -53,7 +91,7 @@ def main():
                     full_path = os.path.join(i, arg[0])
                 
                     if os.path.isfile(full_path) and os.access(full_path, os.X_OK):
-                        sys.stdout.write(f"{arg[0]} is {full_path} \n")
+                        output_stream.write(f"{arg[0]} is {full_path} \n")
                         break
                 else:
                     sys.stdout.write(f"{arg[0]}: not found \n")
@@ -64,10 +102,13 @@ def main():
                 full_path = os.path.join(i, func)
                 
                 if os.path.isfile(full_path) and os.access(full_path, os.X_OK):
-                    subprocess.run([func] + arg, executable=full_path)
+                    subprocess.run([func] + arg, executable=full_path, stdout = output_stream)
                     break
             else:
                 sys.stdout.write(f"{func}: command not found \n")
+        
+        if out:
+            output_stream.close()
 
 
 if __name__ == "__main__":
