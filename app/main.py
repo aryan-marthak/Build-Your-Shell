@@ -41,6 +41,7 @@ def main():
         
         out = None
         err = None
+        append = False
         for i, v in enumerate(parts):
             if v in (">", "1>"):
                 out = parts[i + 1]
