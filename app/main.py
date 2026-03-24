@@ -1,6 +1,7 @@
 import sys
 import os
 import subprocess
+import readline
 import shlex
 
 builtin = ["echo", "type", "exit", "pwd", "cd"]
@@ -28,6 +29,18 @@ builtin = ["echo", "type", "exit", "pwd", "cd"]
 #         result.append(current)
 
 #     return result
+
+def completer(text, curr):
+    cmds = ["echo", "exit"]
+    
+    matches = [i for i in cmds if i.startswith(text)]
+    
+    if curr < len(matches):
+        return matches[curr] + " "
+    return None
+
+readline.set_completer(completer)
+readline.parse_and_bind("tab: complete")
 
 def main():
     while True:
