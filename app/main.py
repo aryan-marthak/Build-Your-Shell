@@ -58,9 +58,16 @@ def main():
                 parts = parts[:i]
                 append = True
                 break
+            
+            elif v in ("2>>"):
+                err = parts[i + 1]
+                parts = parts[:i]
+                append = True
+                break
         
         output_stream = None
         error_stream = None
+        
         if out:
             if append:
                 output_stream = open(out, "a")
@@ -68,8 +75,12 @@ def main():
                 output_stream = open(out, "w")
         else:
             output_stream = sys.stdout
+        
         if err:
-            error_stream = open(err, "w")
+            if append:
+                error_stream = open(err, "a")
+            else:
+                error_stream = open(err, "w")
         else:
             error_stream = sys.stderr
         
