@@ -5,7 +5,6 @@ import readline
 import shlex
 
 builtin = ["echo", "type", "exit", "pwd", "cd"]
-path_env = os.environ.get("PATH", "")
 
 # HOW SHLEX WORKS 
 
@@ -33,6 +32,7 @@ path_env = os.environ.get("PATH", "")
 
 def completer(text, curr):
     cmds = []
+    path_env = os.environ.get("PATH", "")
     
     for i in builtin:
         cmds.append(i)
@@ -159,6 +159,7 @@ def main():
                     error_stream.write(f"{arg[0]}: not found \n")
                     
         else:
+            path_env = os.environ.get("PATH", "")
             for i in path_env.split(os.pathsep):
                 full_path = os.path.join(i, func)
                 
