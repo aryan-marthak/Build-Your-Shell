@@ -5,6 +5,7 @@ import readline
 import shlex
 
 builtin = ["echo", "type", "exit", "pwd", "cd"]
+path_env = os.environ.get("PATH", "")
 
 # HOW SHLEX WORKS 
 
@@ -31,9 +32,25 @@ builtin = ["echo", "type", "exit", "pwd", "cd"]
 #     return result
 
 def completer(text, curr):
-    cmds = ["echo", "exit"]
+    cmds = []
     
-    matches = [i for i in cmds if i.startswith(text)]
+    for i in builtin:
+        cmds.append(i)
+    
+    for path in path_env.split(os.pathsep):
+        if not os.path.isdir(path):
+            continue
+        
+        for file in os.listdir(path):
+            full_path = os.path.join(path, file)
+            
+            if os.access(full_path, os.X_OK):
+                cmds.append(file)
+    
+    matches = []
+    for i in cmds:
+        if i.startswith(text):
+            matches.append(i)    
     
     if curr < len(matches):
         return matches[curr] + " "
@@ -142,7 +159,6 @@ def main():
                     error_stream.write(f"{arg[0]}: not found \n")
                     
         else:
-            path_env = os.environ.get("PATH", "")
             for i in path_env.split(os.pathsep):
                 full_path = os.path.join(i, func)
                 
