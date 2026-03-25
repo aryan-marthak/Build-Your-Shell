@@ -5,7 +5,7 @@ import readline
 import shlex
 
 builtin = ["echo", "type", "exit", "pwd", "cd"]
-
+last_text = ""
 # HOW SHLEX WORKS 
 
 # def parse_command(s):
@@ -31,6 +31,7 @@ builtin = ["echo", "type", "exit", "pwd", "cd"]
 #     return result
 
 def completer(text, curr):
+    global last_text
     cmds = []
     path_env = os.environ.get("PATH", "")
     
@@ -50,11 +51,29 @@ def completer(text, curr):
     matches = []
     for i in cmds:
         if i.startswith(text):
-            matches.append(i)    
+            matches.append(i)   
+
+    if len(matches) == 0:
+        sys.stdout.write("\x07")
+        sys.stdout.flush()
+        return None
     
-    if curr < len(matches):
-        return matches[curr] + " "
-    return None
+    if len(matches) > 1:
+        if last_text != text:
+            last_text = text
+            sys.stdout.write("\x07")
+            sys.stdout.flush()
+            return None
+
+        if curr == 0:
+            sys.stdout.write("\n")
+            sys.stdout.write("  ".join(matches) + "\n")
+            sys.stdout.write("$ " + text)
+            sys.stdout.flush()
+        
+        return None
+    
+    return matches[0] + " "
 
 readline.set_completer(completer)
 readline.parse_and_bind("tab: complete")
