@@ -53,6 +53,8 @@ def completer(text, curr):
         if i.startswith(text):
             matches.append(i)   
 
+    matches = sorted(matches)
+    
     if len(matches) == 0:
         sys.stdout.write("\x07")
         sys.stdout.flush()
