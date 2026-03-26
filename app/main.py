@@ -49,9 +49,8 @@ def completer(text, curr):
                 cmds.append(file)
     
     matches = []
-    buffer = readline.get_line_buffer()
     for i in cmds:
-        if i.startswith(buffer):
+        if i.startswith(text):
             matches.append(i)   
 
     matches = sorted(set(matches))
@@ -62,7 +61,7 @@ def completer(text, curr):
         return None
     
     if len(matches) == 1:
-        return matches[0] + " "
+        return matches[0][len(text):] + " "
     
     if len(matches) > 1:
         if last_text != text:
