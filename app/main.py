@@ -49,8 +49,9 @@ def completer(text, curr):
                 cmds.append(file)
     
     matches = []
+    buffer = readline.get_line_buffer()
     for i in cmds:
-        if i.startswith(text):
+        if i.startswith(buffer):
             matches.append(i)   
 
     matches = sorted(set(matches))
