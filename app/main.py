@@ -61,6 +61,7 @@ def completer(text, curr):
         return None
     
     if len(matches) == 1:
+        last_text = ""
         return matches[0][len(text):] + " "
     
     if len(matches) > 1:
