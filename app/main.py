@@ -60,6 +60,9 @@ def completer(text, curr):
         sys.stdout.flush()
         return None
     
+    if len(matches) == 1:
+        return matches[0] + " "
+    
     if len(matches) > 1:
         if last_text != text:
             last_text = text
