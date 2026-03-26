@@ -6,6 +6,19 @@ import shlex
 
 builtin = ["echo", "type", "exit", "pwd", "cd"]
 last_text = ""
+
+def longest_common_prefix(words):
+    if not words:
+        return ""
+    
+    prefix = words[0]
+    
+    for i in range(len(prefix)):
+        for word in words:
+            if i == len(word) or word[i] != prefix[i]:
+                return prefix[:i]
+    
+    return prefix
 # HOW SHLEX WORKS 
 
 # def parse_command(s):
@@ -67,6 +80,13 @@ def completer(text, curr):
         return None
     
     if len(matches) > 1:
+        lcp = longest_common_prefix(matches)
+        if len(lcp) > len(text):
+            last_text = ""
+            if curr == 0:
+                return lcp
+            return None
+
         if last_text != text:
             last_text = text
             sys.stdout.write("\x07")
