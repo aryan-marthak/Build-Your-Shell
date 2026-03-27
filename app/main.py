@@ -113,7 +113,7 @@ def completer(text, curr):
             
         return None
     
-    return matches[0] + " "
+    return matches[0][len(text):] + " "
 
 readline.set_completer(completer)
 readline.parse_and_bind("tab: complete")
