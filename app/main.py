@@ -45,29 +45,41 @@ def longest_common_prefix(words):
 
 def completer(text, curr):
     global last_text
-    cmds = []
-    path_env = os.environ.get("PATH", "")
+    buffer = readline.get_line_buffer()
+    tokens = buffer.split()
     
-    for i in builtin:
-        cmds.append(i)
-    
-    for path in path_env.split(os.pathsep):
-        if not os.path.isdir(path):
-            continue
-        
-        for file in os.listdir(path):
-            full_path = os.path.join(path, file)
-            
-            if os.access(full_path, os.X_OK):
-                cmds.append(file)
-    
-    matches = []
-    for i in cmds:
-        if i.startswith(text):
-            matches.append(i)   
+    if len(tokens) == 0 or (len(tokens) == 1 and not buffer.endswith(" ")):
+        cmds = []
+        path_env = os.environ.get("PATH", "")
 
-    matches = sorted(set(matches))
+        for i in builtin:
+            cmds.append(i)
+
+        for path in path_env.split(os.pathsep):
+            if not os.path.isdir(path):
+                continue
+            
+            for file in os.listdir(path):
+                full_path = os.path.join(path, file)
+
+                if os.access(full_path, os.X_OK):
+                    cmds.append(file)
+
+        matches = []
+        for i in cmds:
+            if i.startswith(text):
+                matches.append(i)   
+
+        matches = sorted(set(matches))
     
+    else:
+        files = os.listdir(".")
+        matches = []
+        for i in files:
+            if i.startswith(text):
+                matches.append(i)
+        matches = sorted(set(matches))
+        
     if len(matches) == 0:
         sys.stdout.write("\x07")
         sys.stdout.flush()
@@ -86,19 +98,19 @@ def completer(text, curr):
             if curr == 0:
                 return lcp
             return None
-
+        
         if last_text != text:
             last_text = text
             sys.stdout.write("\x07")
             sys.stdout.flush()
             return None
-
+        
         if curr == 0:
             sys.stdout.write("\n")
             sys.stdout.write("  ".join(matches) + "\n")
-            sys.stdout.write("$ " + text)
+            sys.stdout.write("$ " + buffer)
             sys.stdout.flush()
-        
+            
         return None
     
     return matches[0] + " "
