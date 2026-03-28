@@ -74,6 +74,7 @@ def completer(text, curr):
         matches = sorted(set(matches))
     
     else:
+        full_text = tokens[-1] if not buffer.endswith(" ") else ""
         if "/" in text:
             dir_path, file_name = text.rsplit("/", 1)
             if dir_path == "":
@@ -101,7 +102,7 @@ def completer(text, curr):
     if len(matches) == 1:
         last_text = ""
         if curr == 0:
-            return matches[0][len(text):] + " "
+            return matches[0][len(full_text):] + " "
         return None
     
     if len(matches) > 1:
@@ -129,9 +130,6 @@ def completer(text, curr):
     return matches[0][len(text):] + " "
 
 readline.set_completer(completer)
-readline.set_completer_delims(
-    readline.get_completer_delims().replace('/', '')
-)
 readline.parse_and_bind("tab: complete")
 
 def main():
