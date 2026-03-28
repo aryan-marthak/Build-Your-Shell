@@ -19,6 +19,7 @@ def longest_common_prefix(words):
                 return prefix[:i]
     
     return prefix
+
 # HOW SHLEX WORKS 
 
 # def parse_command(s):
@@ -73,12 +74,21 @@ def completer(text, curr):
         matches = sorted(set(matches))
     
     else:
-        files = os.listdir(".")
-        matches = []
-        for i in files:
-            if i.startswith(text):
-                matches.append(i)
-        matches = sorted(set(matches))
+        if "/" in text:
+            dir_path, file_name = text.rsplit("/", 1)
+            files = os.listdir(dir_path)
+            matches = []
+            for i in files:
+                if i.startswith(file_name):
+                    matches.append(dir_path + "/" + i)
+        
+        else:
+            files = os.listdir(".")
+            matches = []
+            for i in files:
+                if i.startswith(text):
+                    matches.append(i)
+            matches = sorted(set(matches))
         
     if len(matches) == 0:
         sys.stdout.write("\x07")
