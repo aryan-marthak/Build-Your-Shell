@@ -103,7 +103,7 @@ def completer(text, curr):
     
     if len(matches) == 1:
         last_text = ""
-        completion = matches[0][len(text):]
+        completion = matches[0]
 
         if curr == 0:
             return completion + " "
@@ -113,7 +113,7 @@ def completer(text, curr):
         lcp = longest_common_prefix(matches)
         if len(lcp) > len(text):
             last_text = ""
-            completion = lcp[len(text):]
+            completion = lcp
             if curr == 0:
                 return completion
             return None
@@ -132,7 +132,7 @@ def completer(text, curr):
             
         return None
     
-    return matches[0][len(text):] + " "
+    return matches[0] + " "
 
 readline.set_completer(completer)
 readline.set_completer_delims(readline.get_completer_delims().replace("/", ""))
