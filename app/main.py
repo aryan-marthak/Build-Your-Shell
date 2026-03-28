@@ -76,11 +76,14 @@ def completer(text, curr):
     else:
         if "/" in text:
             dir_path, file_name = text.rsplit("/", 1)
+            if dir_path == "":
+                dir_path = "."
             files = os.listdir(dir_path)
             matches = []
             for i in files:
                 if i.startswith(file_name):
-                    matches.append(dir_path + "/" + i)
+                    matches.append(os.path.join(dir_path, i))
+            matches = sorted(set(matches))
         
         else:
             files = os.listdir(".")
