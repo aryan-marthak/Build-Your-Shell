@@ -80,7 +80,7 @@ def completer(text, curr):
             matches = []
             for i in files:
                 if i.startswith(file_name):
-                    matches.append(dir_path + "/" + i)
+                    matches.append(i)
         
         else:
             files = os.listdir(".")
