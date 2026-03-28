@@ -80,7 +80,8 @@ def completer(text, curr):
             matches = []
             for i in files:
                 if i.startswith(file_name):
-                    matches.append(i)
+                    matches.append(text + i)
+            matches = sorted(set(matches))
         
         else:
             files = os.listdir(".")
