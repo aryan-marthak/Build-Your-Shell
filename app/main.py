@@ -135,7 +135,7 @@ def completer(text, curr):
     return matches[0] + " "
 
 readline.set_completer(completer)
-readline.set_completer_delims(readline.get_completer_delims().replace("/", ""))
+readline.set_completer_delims(" \t\n")
 readline.parse_and_bind("tab: complete")
 
 def main():
