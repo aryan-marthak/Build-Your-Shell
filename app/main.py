@@ -80,8 +80,7 @@ def completer(text, curr):
             matches = []
             for i in files:
                 if i.startswith(file_name):
-                    matches.append(text + i)
-            matches = sorted(set(matches))
+                    matches.append(dir_path + "/" + i)
         
         else:
             files = os.listdir(".")
@@ -99,7 +98,7 @@ def completer(text, curr):
     if len(matches) == 1:
         last_text = ""
         if curr == 0:
-            return matches[0][len(text):] + " "
+            return matches[0] + " "
         return None
     
     if len(matches) > 1:
