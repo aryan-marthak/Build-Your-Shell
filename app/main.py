@@ -99,7 +99,7 @@ def completer(text, curr):
     if len(matches) == 1:
         last_text = ""
         if curr == 0:
-            return matches[0] + " "
+            return matches[0][len(text):] + " "
         return None
     
     if len(matches) > 1:
