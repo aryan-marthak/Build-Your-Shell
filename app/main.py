@@ -78,11 +78,14 @@ def completer(text, curr):
             dir_path, file_name = text.rsplit("/", 1)
             if dir_path == "":
                 dir_path = "."
-            files = os.listdir(dir_path)
+            try:
+                files = os.listdir(dir_path)
+            except FileNotFoundError:
+                return None
             matches = []
             for i in files:
                 if i.startswith(file_name):
-                    matches.append(os.path.join(dir_path, i))
+                    matches.append(text[:len(text) - len(file_name)] + i)
             matches = sorted(set(matches))
         
         else:
@@ -100,10 +103,7 @@ def completer(text, curr):
     
     if len(matches) == 1:
         last_text = ""
-        completion = matches[0]
-
-        if "/" in text:
-            completion = completion[len(text):]
+        completion = matches[0][len(text):]
 
         if curr == 0:
             return completion + " "
