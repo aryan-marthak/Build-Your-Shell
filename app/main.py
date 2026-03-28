@@ -100,16 +100,22 @@ def completer(text, curr):
     
     if len(matches) == 1:
         last_text = ""
+        completion = matches[0]
+
+        if "/" in text:
+            completion = completion[len(text):]
+
         if curr == 0:
-            return matches[0] + " "
+            return completion + " "
         return None
     
     if len(matches) > 1:
         lcp = longest_common_prefix(matches)
         if len(lcp) > len(text):
             last_text = ""
+            completion = lcp[len(text):]
             if curr == 0:
-                return lcp
+                return completion
             return None
         
         if last_text != text:
