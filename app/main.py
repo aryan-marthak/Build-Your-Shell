@@ -131,7 +131,13 @@ def completer(text, curr):
         
         if curr == 0:
             sys.stdout.write("\n")
-            sys.stdout.write("  ".join(matches) + "\n")
+            total_matches = []
+            for i in total_matches:
+                if os.path.isdir(i):
+                    total_matches.append(i + "/")
+                else:
+                    total_matches.append(i)
+            sys.stdout.write("  ".join(total_matches) + "\n")
             sys.stdout.write("$ " + buffer)
             sys.stdout.flush()
             
