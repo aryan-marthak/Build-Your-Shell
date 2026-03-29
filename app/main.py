@@ -213,6 +213,16 @@ def main():
         elif func == "echo":
             output_stream.write(" ".join(arg) + "\n")
         
+        elif "|" in parts:
+            left, right = command.split("|", 1)
+            left_parts = shlex.split(left.strip())
+            right_parts = shlex.split(right.strip())
+            
+            p1 = subprocess.Popen(left_parts, stdout=subprocess.PIPE, stderr=error_stream)
+            p2 = subprocess.Popen(right_parts, stdin=p1.stdout, stdout=output_stream, stderr=error_stream)
+            p1.stdout.close()
+            p2.communicate()
+        
         elif func == "pwd":
             output_stream.write(os.getcwd() + "\n")
             
