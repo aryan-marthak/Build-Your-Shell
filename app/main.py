@@ -132,7 +132,7 @@ def completer(text, curr):
         if curr == 0:
             sys.stdout.write("\n")
             total_matches = []
-            for i in total_matches:
+            for i in matches:
                 if os.path.isdir(i):
                     total_matches.append(i + "/")
                 else:
