@@ -103,10 +103,15 @@ def completer(text, curr):
     
     if len(matches) == 1:
         last_text = ""
-        completion = matches[0]
-
+        if "/" in matches[0]:
+            full_path = matches[0]
+        else:
+            full_path = os.path.join(".", matches[0])
         if curr == 0:
-            return completion + " "
+            if os.path.isdir(full_path):
+                return matches[0] + "/"
+            else:
+                return matches[0] + " "
         return None
     
     if len(matches) > 1:
