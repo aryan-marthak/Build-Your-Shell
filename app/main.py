@@ -208,65 +208,89 @@ def main():
         arg = parts[1:]
         
         if "|" in command:
-            left, right = command.split("|", 1)
-            left_parts = shlex.split(left.strip())
-            right_parts = shlex.split(right.strip())
+            cmds = command.split("|")
+            # process = []
+            prev = None
             
-            p1 = subprocess.Popen(left_parts, stdout=subprocess.PIPE, stderr=error_stream)
-            
-            if right_parts[0] in builtin:
-                p1.stdout.close()
-                p1.wait()
-                func = right_parts[0]
-                args = right_parts[1:]
+            for i, cmd in enumerate(cmds):
+                inpipe = shlex.split(cmd.strip())
+                func = inpipe[0]
                 
-                if func == "exit":
-                    break
-        
-                elif func == "echo":
-                    output_stream.write(" ".join(args) + "\n")
-        
-        
-                elif func == "pwd":
-                    output_stream.write(os.getcwd() + "\n")
+            # left, right = command.split("|", 1)
+            # left_parts = shlex.split(left.strip())
+            # right_parts = shlex.split(right.strip())
             
-                elif func == "cd":
-                    if not args:
-                        continue
+            # p1 = subprocess.Popen(left_parts, stdout=subprocess.PIPE, stderr=error_stream)
+            
+                if func in builtin:
+                    if prev:
+                        prev.stdout.close()
+                        prev.wait()
+                        
+                    args = inpipe[1:]
+                    # p1.stdout.close()
+                    # p1.wait()
+                    # func = right_parts[0]
+                    # args = right_parts[1:]
+
+                    if func == "exit":
+                        break
                     
-                    path = arg[0]
-                    if os.path.isdir(path):
-                        os.chdir(path)
-                    elif path == "~":
-                        home = os.getenv("HOME")
-                        os.chdir(home)
-                    else:
-                        error_stream.write(f"cd: {path}: No such file or directory \n")
+                    elif func == "echo":
+                        output_stream.write(" ".join(args) + "\n")
 
-                elif func == "type":
-                    if not args:
-                        continue
-                    
-                    if args[0] in builtin:
-                        output_stream.write(f"{args[0]} is a shell builtin \n")
 
-                    else:
-                        path_env = os.environ.get("PATH", "")
+                    elif func == "pwd":
+                        output_stream.write(os.getcwd() + "\n")
 
-                        for i in path_env.split(os.pathsep):
-                            full_path = os.path.join(i, args[0])
-
-                            if os.path.isfile(full_path) and os.access(full_path, os.X_OK):
-                                output_stream.write(f"{args[0]} is {full_path} \n")
-                                break
+                    elif func == "cd":
+                        if not args:
+                            continue
+                        
+                        path = args[0]
+                        if os.path.isdir(path):
+                            os.chdir(path)
+                        elif path == "~":
+                            home = os.getenv("HOME")
+                            os.chdir(home)
                         else:
-                            error_stream.write(f"{args[0]}: not found \n")
+                            error_stream.write(f"cd: {path}: No such file or directory \n")
+
+                    elif func == "type":
+                        if not args:
+                            continue
+                        
+                        if args[0] in builtin:
+                            output_stream.write(f"{args[0]} is a shell builtin \n")
+
+                        else:
+                            path_env = os.environ.get("PATH", "")
+
+                            for i in path_env.split(os.pathsep):
+                                full_path = os.path.join(i, args[0])
+
+                                if os.path.isfile(full_path) and os.access(full_path, os.X_OK):
+                                    output_stream.write(f"{args[0]} is {full_path} \n")
+                                    break
+                            else:
+                                error_stream.write(f"{args[0]}: not found \n")
+                    
+                    prev = None
+                    break
             
-            else:
-                p2 = subprocess.Popen(right_parts, stdin=p1.stdout, stdout=output_stream, stderr=error_stream)
-                p1.stdout.close()
-                p2.communicate()
-                continue
+                if i == 0:
+                    p = subprocess.Popen(inpipe, stdout=subprocess.PIPE, stderr=error_stream)
+                else:
+                    p = subprocess.Popen(inpipe, stdin=prev.stdout, stdout=subprocess.PIPE, stderr=error_stream)
+                    prev.stdout.close()
+                prev = p
+            if prev:
+                outdata, _ = prev.communicate()
+                sys.stdout.write(outdata.decode())
+            continue
+                # p1.stdout.close()
+                # p2.communicate()
+                # continue
 
         elif func == "exit":
             break
@@ -327,4 +351,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
