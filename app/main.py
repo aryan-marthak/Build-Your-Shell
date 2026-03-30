@@ -337,8 +337,14 @@ def main():
                 else:
                     error_stream.write(f"{arg[0]}: not found \n")
         elif func == "history":
-            for i, cmd in enumerate(history):
-                output_stream.write(f"{i + 1:>5} {cmd}\n")
+            if arg:
+                n = int(arg[0])
+                start = max(0, len(history) - n)
+                for i, cmd in enumerate(history[start:], start=start + 1):
+                    output_stream.write(f"{i:>5} {cmd}\n")
+            else:
+                for i, cmd in enumerate(history, start=1):
+                    output_stream.write(f"{i:>5} {cmd}\n")
             
         else:
             path_env = os.environ.get("PATH", "")
