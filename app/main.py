@@ -170,7 +170,7 @@ def main():
                 parts = parts[:i]
                 break
             
-            elif v in ("2>"):
+            elif v in ("2>",):
                 err = parts[i + 1]
                 parts = parts[:i]
                 break
@@ -181,7 +181,7 @@ def main():
                 append = True
                 break
             
-            elif v in ("2>>",):
+            elif v in ("2>>"):
                 err = parts[i + 1]
                 parts = parts[:i]
                 append = True
