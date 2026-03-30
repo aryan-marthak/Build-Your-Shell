@@ -229,9 +229,11 @@ def main():
                 if func in builtin:
                     if func == "echo":
                         output = " ".join(args) + "\n"
+                        builtin_output = output
         
                     elif func == "pwd":
                         output = os.getcwd() + "\n"
+                        builtin_output = output
         
                     elif func == "type":
                         if not args:
@@ -247,10 +249,12 @@ def main():
                                     break
                             else:
                                 output = f"{args[0]}: not found\n"
+                        builtin_output = output
         
                     else:
                         # cd, exit, history (ignore in pipeline)
                         output = ""
+                        builtin_output = output
         
                 # ---- EXTERNAL COMMAND ----
                 else:
