@@ -208,81 +208,32 @@ def main():
         arg = parts[1:]
         
         if "|" in command:
-            cmds = command.split("|")
-            prev = None
-            
-            for i, cmd in enumerate(cmds):
-                inpipe = shlex.split(cmd.strip())
-                if not inpipe:
-                    continue
-                func = inpipe[0]
-                args = inpipe[1:]
-                
-                is_last = (i == len(cmds) - 1)
-                child_stdout = output_stream if is_last else subprocess.PIPE
-                
-                if func in builtin:
-                    # Execute builtin
-                    r_pipe, w_pipe = None, None
-                    if not is_last:
-                        r_pipe, w_pipe = os.pipe()
-                        out_f = os.fdopen(w_pipe, "w")
-                    else:
-                        out_f = output_stream
-                        
-                    if prev:
-                        # Consuming prev.stdout to simulate pipe if needed
-                        # builtins ignore stdin generally in this shell implementation
-                        prev.stdout.close()
-
-                    if func == "exit":
-                        break
-                    elif func == "echo":
-                        out_f.write(" ".join(args) + "\n")
-                    elif func == "pwd":
-                        out_f.write(os.getcwd() + "\n")
-                    elif func == "cd":
-                        if args:
-                            path = args[0]
-                            if os.path.isdir(path): pass # inside pipe, cd doesn't affect main shell
-                            elif path == "~": pass
-                            else: error_stream.write(f"cd: {path}: No such file or directory \n")
-                    elif func == "type":
-                        if args:
-                            if args[0] in builtin:
-                                out_f.write(f"{args[0]} is a shell builtin \n")
-                            else:
-                                path_env = os.environ.get("PATH", "")
-                                for pdir in path_env.split(os.pathsep):
-                                    full_path = os.path.join(pdir, args[0])
-                                    if os.path.isfile(full_path) and os.access(full_path, os.X_OK):
-                                        out_f.write(f"{args[0]} is {full_path} \n")
-                                        break
-                                else:
-                                    error_stream.write(f"{args[0]}: not found \n")
-
-                    if not is_last:
-                        out_f.close()
-                        class Dummy: pass
-                        prev = Dummy()
-                        prev.stdout = os.fdopen(r_pipe, "rb")
-                        prev.wait = lambda: None
-                    else:
-                        prev = None
-                else:
-                    if i == 0:
-                        p = subprocess.Popen(inpipe, stdout=child_stdout, stderr=error_stream)
-                    else:
-                        p = subprocess.Popen(inpipe, stdin=prev.stdout, stdout=child_stdout, stderr=error_stream)
-                        prev.stdout.close()
-                    prev = p
-                
-            if prev and hasattr(prev, "wait"):
-                prev.wait()
+            commands = [shlex.split(cmd.strip()) for cmd in command.split("|")]
+        
+            processes = []
+            prev_pipe = None
+        
+            for i, cmd_parts in enumerate(commands):
+                stdin = prev_pipe
+                stdout = subprocess.PIPE if i < len(commands) - 1 else output_stream
+        
+                p = subprocess.Popen(
+                    cmd_parts,
+                    stdin=stdin,
+                    stdout=stdout,
+                    stderr=error_stream
+                )
+        
+                if prev_pipe:
+                    prev_pipe.close()
+        
+                prev_pipe = p.stdout
+                processes.append(p)
+        
+            for p in processes:
+                p.wait()
+        
             continue
-                # p1.stdout.close()
-                # p2.communicate()
-                # continue
 
         elif func == "exit":
             break
