@@ -210,61 +210,79 @@ def main():
         if "|" in command:
             commands = [shlex.split(cmd.strip()) for cmd in command.split("|")]
         
-            input_data = None
+            processes = []
+            prev_pipe = None
+            builtin_output = None
         
-            for cmd_parts in commands:
+            for i, cmd_parts in enumerate(commands):
+                if not cmd_parts:
+                    continue
+                
                 func = cmd_parts[0]
                 args = cmd_parts[1:]
+                
+                is_last = (i == len(commands) - 1)
+                stdout_target = output_stream if is_last else subprocess.PIPE
         
                 # ---- BUILTIN HANDLING ----
                 if func in builtin:
-                    if func == "echo":
-                        output = " ".join(args) + "\n"
-        
-                    elif func == "pwd":
-                        output = os.getcwd() + "\n"
-        
+                    output = ""
+                    if func == "echo": output = " ".join(args) + "\n"
+                    elif func == "pwd": output = os.getcwd() + "\n"
                     elif func == "type":
-                        if not args:
-                            output = ""
-                        elif args[0] in builtin:
-                            output = f"{args[0]} is a shell builtin\n"
-                        else:
-                            path_env = os.environ.get("PATH", "")
-                            for p in path_env.split(os.pathsep):
-                                full = os.path.join(p, args[0])
-                                if os.path.isfile(full) and os.access(full, os.X_OK):
-                                    output = f"{args[0]} is {full}\n"
-                                    break
+                        if args:
+                            if args[0] in builtin: output = f"{args[0]} is a shell builtin\n"
                             else:
-                                output = f"{args[0]}: not found\n"
-        
+                                path_env = os.environ.get("PATH", "")
+                                for p in path_env.split(os.pathsep):
+                                    full = os.path.join(p, args[0])
+                                    if os.path.isfile(full) and os.access(full, os.X_OK):
+                                        output = f"{args[0]} is {full}\n"
+                                        break
+                                else: output = f"{args[0]}: not found\n"
+                    
+                    if prev_pipe: # Builtins ignore incoming pipe, close it
+                        prev_pipe.close()
+                        prev_pipe = None
+                        
+                    if is_last:
+                        output_stream.write(output)
                     else:
-                        # cd, exit, history (ignore in pipeline)
-                        output = ""
-        
+                        builtin_output = output.encode()
+                        
                 # ---- EXTERNAL COMMAND ----
                 else:
+                    stdin_source = None
+                    if prev_pipe:
+                        stdin_source = prev_pipe
+                    elif builtin_output is not None:
+                        stdin_source = subprocess.PIPE
+                        
                     try:
                         p = subprocess.Popen(
-                            [func] + args,
-                            stdin=subprocess.PIPE,
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE,
-                            text=True
+                            cmd_parts,
+                            stdin=stdin_source,
+                            stdout=stdout_target,
+                            stderr=error_stream
                         )
-        
-                        stdout, stderr = p.communicate(input=input_data)
-                        output = stdout
-        
+                        
+                        if stdin_source == subprocess.PIPE:
+                            p.stdin.write(builtin_output)
+                            p.stdin.close()
+                            builtin_output = None
+                            
+                        if prev_pipe:
+                            prev_pipe.close()
+                            
+                        prev_pipe = p.stdout
+                        processes.append(p)
+                        
                     except FileNotFoundError:
-                        output = f"{func}: command not found\n"
+                        error_stream.write(f"{func}: command not found\n")
         
-                # pass output to next command
-                input_data = output
+            for p in processes:
+                p.wait()
         
-            # final output
-            output_stream.write(input_data or "")
             continue
 
         elif func == "exit":
