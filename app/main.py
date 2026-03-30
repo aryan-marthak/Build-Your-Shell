@@ -150,10 +150,11 @@ readline.set_completer_delims(" \t\n")
 readline.parse_and_bind("tab: complete")
 
 def main():
+    history = []
     while True:
         sys.stdout.write("$ ")
         command = input()
-        history = []
+        history.append(command)
         
         # parts = parse_command(s)
         parts = shlex.split(command)
@@ -272,7 +273,6 @@ def main():
                         processes.append(p)
                     except FileNotFoundError:
                         error_stream.write(f"{func}: command not found\n")
-                        history.append(command)
                         break
         
             for p in processes:
@@ -284,12 +284,10 @@ def main():
         
         elif func == "echo":
             output_stream.write(" ".join(arg) + "\n")
-            history.append(command)
         
         
         elif func == "pwd":
             output_stream.write(os.getcwd() + "\n")
-            history.append(command)
             
         elif func == "cd":
             if not arg:
@@ -303,7 +301,6 @@ def main():
                 os.chdir(home)
             else:
                 error_stream.write(f"cd: {path}: No such file or directory \n")
-                history.append(command)
 
         elif func == "type":
             if not arg:
@@ -311,7 +308,6 @@ def main():
             
             if arg[0] in builtin:
                 output_stream.write(f"{arg[0]} is a shell builtin \n")
-                history.append(command)
             
             else:
                 path_env = os.environ.get("PATH", "")
@@ -321,16 +317,12 @@ def main():
                 
                     if os.path.isfile(full_path) and os.access(full_path, os.X_OK):
                         output_stream.write(f"{arg[0]} is {full_path} \n")
-                        history.append(command)
                         break
                 else:
                     error_stream.write(f"{arg[0]}: not found \n")
-                    history.append(command)
-                    
         elif func == "history":
             for i, cmd in enumerate(history):
-                output_stream.write(f"{i + 1} {cmd}\n")
-                history.append(command)
+                output_stream.write(f"{i + 1:>5} {cmd}\n")
             
         else:
             path_env = os.environ.get("PATH", "")
@@ -342,7 +334,6 @@ def main():
                     break
             else:
                 error_stream.write(f"{func}: command not found \n")
-                history.append(command)
         
         if out:
             output_stream.close()
