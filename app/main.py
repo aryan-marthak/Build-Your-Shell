@@ -222,7 +222,7 @@ def main():
             
             # p1 = subprocess.Popen(left_parts, stdout=subprocess.PIPE, stderr=error_stream)
             
-                if func in builtin:
+                if func in builtin and i == len(cmds) - 1:
                     if prev:
                         prev.stdout.close()
                         prev.wait()
@@ -277,8 +277,10 @@ def main():
                     
                     prev = None
                     break
+                if func in builtin and i != len(cmds) - 1:
+                    p = subprocess.Popen(inpipe, stdout=subprocess.PIPE, stderr=error_stream)
             
-                if i == 0:
+                elif i == 0:
                     p = subprocess.Popen(inpipe, stdout=subprocess.PIPE, stderr=error_stream)
                 else:
                     p = subprocess.Popen(inpipe, stdin=prev.stdout, stdout=subprocess.PIPE, stderr=error_stream)
