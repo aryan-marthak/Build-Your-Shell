@@ -288,7 +288,8 @@ def main():
                 prev = p
                 
             if prev:
-                outdata, _ = prev.communicate()
+                prev.wait()
+                outdata = prev.stdout.read()
                 sys.stdout.write(outdata.decode())
             continue
                 # p1.stdout.close()
