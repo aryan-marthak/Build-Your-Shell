@@ -287,9 +287,6 @@ def main():
                     prev.stdout.close()
                 prev = p
                 
-            if prev and prev.stdout:
-                prev.stdout.close()
-                
             if prev:
                 outdata, _ = prev.communicate()
                 sys.stdout.write(outdata.decode())
