@@ -4,7 +4,7 @@ import subprocess
 import readline
 import shlex
 
-builtin = ["echo", "type", "exit", "pwd", "cd"]
+builtin = ["echo", "type", "exit", "pwd", "cd", "history"]
 last_text = ""
 
 def longest_common_prefix(words):
@@ -209,30 +209,30 @@ def main():
         
         if "|" in command:
             commands = [shlex.split(cmd.strip()) for cmd in command.split("|")]
-        
+
             processes = []
             prev_pipe = None
-        
+
             for i, cmd_parts in enumerate(commands):
                 stdin = prev_pipe
                 stdout = subprocess.PIPE if i < len(commands) - 1 else output_stream
-        
+
                 p = subprocess.Popen(
                     cmd_parts,
                     stdin=stdin,
                     stdout=stdout,
                     stderr=error_stream
                 )
-        
+
                 if prev_pipe:
                     prev_pipe.close()
-        
+
                 prev_pipe = p.stdout
                 processes.append(p)
-        
+
             for p in processes:
                 p.wait()
-        
+
             continue
 
         elif func == "exit":
