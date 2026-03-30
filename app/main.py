@@ -209,30 +209,62 @@ def main():
         
         if "|" in command:
             commands = [shlex.split(cmd.strip()) for cmd in command.split("|")]
-
-            processes = []
-            prev_pipe = None
-
-            for i, cmd_parts in enumerate(commands):
-                stdin = prev_pipe
-                stdout = subprocess.PIPE if i < len(commands) - 1 else output_stream
-
-                p = subprocess.Popen(
-                    cmd_parts,
-                    stdin=stdin,
-                    stdout=stdout,
-                    stderr=error_stream
-                )
-
-                if prev_pipe:
-                    prev_pipe.close()
-
-                prev_pipe = p.stdout
-                processes.append(p)
-
-            for p in processes:
-                p.wait()
-
+        
+            input_data = None
+        
+            for cmd_parts in commands:
+                func = cmd_parts[0]
+                args = cmd_parts[1:]
+        
+                # ---- BUILTIN HANDLING ----
+                if func in builtin:
+                    if func == "echo":
+                        output = " ".join(args) + "\n"
+        
+                    elif func == "pwd":
+                        output = os.getcwd() + "\n"
+        
+                    elif func == "type":
+                        if not args:
+                            output = ""
+                        elif args[0] in builtin:
+                            output = f"{args[0]} is a shell builtin\n"
+                        else:
+                            path_env = os.environ.get("PATH", "")
+                            for p in path_env.split(os.pathsep):
+                                full = os.path.join(p, args[0])
+                                if os.path.isfile(full) and os.access(full, os.X_OK):
+                                    output = f"{args[0]} is {full}\n"
+                                    break
+                            else:
+                                output = f"{args[0]}: not found\n"
+        
+                    else:
+                        # cd, exit, history (ignore in pipeline)
+                        output = ""
+        
+                # ---- EXTERNAL COMMAND ----
+                else:
+                    try:
+                        p = subprocess.Popen(
+                            [func] + args,
+                            stdin=subprocess.PIPE,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE,
+                            text=True
+                        )
+        
+                        stdout, stderr = p.communicate(input=input_data)
+                        output = stdout
+        
+                    except FileNotFoundError:
+                        output = f"{func}: command not found\n"
+        
+                # pass output to next command
+                input_data = output
+        
+            # final output
+            output_stream.write(input_data or "")
             continue
 
         elif func == "exit":
