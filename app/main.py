@@ -181,7 +181,7 @@ def main():
                 append = True
                 break
             
-            elif v in ("2>>"):
+            elif v in ("2>>",):
                 err = parts[i + 1]
                 parts = parts[:i]
                 append = True
@@ -336,6 +336,7 @@ def main():
                         break
                 else:
                     error_stream.write(f"{arg[0]}: not found \n")
+        
         elif func == "history":
             if arg:
                 n = int(arg[0])
