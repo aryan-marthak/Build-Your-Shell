@@ -224,14 +224,14 @@ def main():
                     break
         
                 elif func == "echo":
-                    output_stream.write(" ".join(arg) + "\n")
+                    output_stream.write(" ".join(args) + "\n")
         
         
                 elif func == "pwd":
                     output_stream.write(os.getcwd() + "\n")
             
                 elif func == "cd":
-                    if not arg:
+                    if not args:
                         continue
                     
                     path = arg[0]
@@ -244,23 +244,23 @@ def main():
                         error_stream.write(f"cd: {path}: No such file or directory \n")
 
                 elif func == "type":
-                    if not arg:
+                    if not args:
                         continue
                     
-                    if arg[0] in builtin:
-                        output_stream.write(f"{arg[0]} is a shell builtin \n")
+                    if args[0] in builtin:
+                        output_stream.write(f"{args[0]} is a shell builtin \n")
 
                     else:
                         path_env = os.environ.get("PATH", "")
 
                         for i in path_env.split(os.pathsep):
-                            full_path = os.path.join(i, arg[0])
+                            full_path = os.path.join(i, args[0])
 
                             if os.path.isfile(full_path) and os.access(full_path, os.X_OK):
-                                output_stream.write(f"{arg[0]} is {full_path} \n")
+                                output_stream.write(f"{args[0]} is {full_path} \n")
                                 break
                         else:
-                            error_stream.write(f"{arg[0]}: not found \n")
+                            error_stream.write(f"{args[0]}: not found \n")
             
             else:
                 p2 = subprocess.Popen(right_parts, stdin=p1.stdout, stdout=output_stream, stderr=error_stream)
