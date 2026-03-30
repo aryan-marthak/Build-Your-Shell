@@ -286,6 +286,10 @@ def main():
                     p = subprocess.Popen(inpipe, stdin=prev.stdout, stdout=subprocess.PIPE, stderr=error_stream)
                     prev.stdout.close()
                 prev = p
+                
+            if prev and prev.stdout:
+                prev.stdout.close()
+                
             if prev:
                 outdata, _ = prev.communicate()
                 sys.stdout.write(outdata.decode())
