@@ -207,21 +207,73 @@ def main():
         func = parts[0]
         arg = parts[1:]
         
-        if func == "exit":
-            break
-        
-        elif func == "echo":
-            output_stream.write(" ".join(arg) + "\n")
-        
-        elif "|" in parts:
+        if "|" in command:
             left, right = command.split("|", 1)
             left_parts = shlex.split(left.strip())
             right_parts = shlex.split(right.strip())
             
             p1 = subprocess.Popen(left_parts, stdout=subprocess.PIPE, stderr=error_stream)
-            p2 = subprocess.Popen(right_parts, stdin=p1.stdout, stdout=output_stream, stderr=error_stream)
-            p1.stdout.close()
-            p2.communicate()
+            
+            if right_parts[0] in builtin:
+                p1.stdout.close()
+                p1.wait()
+                func = right_parts[0]
+                args = right_parts[1:]
+                
+                if func == "exit":
+                    break
+        
+                elif func == "echo":
+                    output_stream.write(" ".join(arg) + "\n")
+        
+        
+                elif func == "pwd":
+                    output_stream.write(os.getcwd() + "\n")
+            
+                elif func == "cd":
+                    if not arg:
+                        continue
+                    
+                    path = arg[0]
+                    if os.path.isdir(path):
+                        os.chdir(path)
+                    elif path == "~":
+                        home = os.getenv("HOME")
+                        os.chdir(home)
+                    else:
+                        error_stream.write(f"cd: {path}: No such file or directory \n")
+
+                elif func == "type":
+                    if not arg:
+                        continue
+                    
+                    if arg[0] in builtin:
+                        output_stream.write(f"{arg[0]} is a shell builtin \n")
+
+                    else:
+                        path_env = os.environ.get("PATH", "")
+
+                        for i in path_env.split(os.pathsep):
+                            full_path = os.path.join(i, arg[0])
+
+                            if os.path.isfile(full_path) and os.access(full_path, os.X_OK):
+                                output_stream.write(f"{arg[0]} is {full_path} \n")
+                                break
+                        else:
+                            error_stream.write(f"{arg[0]}: not found \n")
+            
+            else:
+                p2 = subprocess.Popen(right_parts, stdin=p1.stdout, stdout=output_stream, stderr=error_stream)
+                p1.stdout.close()
+                p2.communicate()
+                continue
+
+        elif func == "exit":
+            break
+        
+        elif func == "echo":
+            output_stream.write(" ".join(arg) + "\n")
+        
         
         elif func == "pwd":
             output_stream.write(os.getcwd() + "\n")
