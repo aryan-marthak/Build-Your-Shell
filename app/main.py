@@ -346,6 +346,13 @@ def main():
                     history.append(i.strip())
                 file.close()
             
+            elif arg and arg[0] == "-w":
+                path = arg[1]
+                file = open(path, "w")
+                for i in history:
+                    file.write(i + "\n")
+                file.close()
+            
             elif arg:
                 n = int(arg[0])
                 start = max(0, len(history) - n)
