@@ -339,11 +339,19 @@ def main():
                     error_stream.write(f"{arg[0]}: not found \n")
         
         elif func == "history":
-            if arg:
+            if arg and arg[0] == "-r":
+                path = arg[1]
+                file = open(path)
+                for i in file:
+                    history.append(i.strip())
+                file.close()
+            
+            elif arg:
                 n = int(arg[0])
                 start = max(0, len(history) - n)
                 for i, cmd in enumerate(history[start:], start=start + 1):
                     output_stream.write(f"{i:>5} {cmd}\n")
+            
             else:
                 for i, cmd in enumerate(history, start=1):
                     output_stream.write(f"{i:>5} {cmd}\n")
