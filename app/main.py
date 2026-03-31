@@ -152,6 +152,18 @@ readline.parse_and_bind("tab: complete")
 def main():
     history = []
     history_index = 0
+    histfile = os.environ.get("HISTFILE")
+    if histfile:
+        try:
+            file = open(histfile)
+            for i in file:
+                line = i.strip()
+                if line:
+                    history.append(line)
+            file.close()
+        except FileNotFoundError:
+            pass
+
     while True:
         command = input("$ ")
         if not command.strip():
