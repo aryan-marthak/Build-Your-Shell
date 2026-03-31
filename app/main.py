@@ -310,6 +310,11 @@ def main():
             continue
 
         elif func == "exit":
+            if histfile:
+                file = open(histfile, "w")
+                for i in history:
+                    file.write(i + "\n")
+                file.close()
             break
         
         elif func == "echo":
