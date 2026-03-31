@@ -157,7 +157,6 @@ def main():
         if not command.strip():
             continue
         history.append(command)
-        readline.add_history(command)
         
         # parts = parse_command(s)
         parts = shlex.split(command)
