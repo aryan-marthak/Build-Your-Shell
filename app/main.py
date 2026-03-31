@@ -151,6 +151,7 @@ readline.parse_and_bind("tab: complete")
 
 def main():
     history = []
+    history_index = 0
     while True:
         command = input("$ ")
         if not command.strip():
@@ -352,6 +353,14 @@ def main():
                 for i in history:
                     file.write(i + "\n")
                 file.close()
+            
+            elif arg and arg[0] == "-a":
+                path = arg[1]
+                file = open(path, "a")
+                for i in history[history_index:]:
+                    file.write(i + "\n")
+                file.close()
+                history_index = len(history)
             
             elif arg:
                 n = int(arg[0])
