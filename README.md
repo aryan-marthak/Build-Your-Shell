@@ -1,34 +1,42 @@
 [![progress-banner](https://backend.codecrafters.io/progress/shell/757761f3-9740-45f2-9ec0-5462935972f5)](https://app.codecrafters.io/users/codecrafters-bot?r=2qF)
 
-This is a starting point for Python solutions to the
-["Build Your Own Shell" Challenge](https://app.codecrafters.io/courses/shell/overview).
+# 🐚 Build Your Own Shell — Completed
 
-In this challenge, you'll build your own POSIX compliant shell that's capable of
-interpreting shell commands, running external programs and builtin commands like
-cd, pwd, echo and more. Along the way, you'll learn about shell command parsing,
-REPLs, builtin commands, and more.
+A fully functional POSIX-compliant shell built in Python as part of the [CodeCrafters "Build Your Own Shell" Challenge](https://app.codecrafters.io/courses/shell/overview).
 
-**Note**: If you're viewing this repo on GitHub, head over to
-[codecrafters.io](https://codecrafters.io) to try the challenge.
+---
 
-# Passing the first stage
+## ✅ Completed Stages
 
-The entry point for your `shell` implementation is in `app/main.py`. Study and
-uncomment the relevant code, then run the command below to execute the tests on
-our servers:
+| Stage | Feature | Status |
+|---|---|---|
+| 1 | REPL (Read-Eval-Print Loop) | ✅ |
+| 2 | `exit` builtin | ✅ |
+| 3 | `echo` builtin | ✅ |
+| 4 | `type` builtin — builtins | ✅ |
+| 5 | `type` builtin — executables | ✅ |
+| 6 | Run external programs via `PATH` | ✅ |
+| 7 | `pwd` builtin | ✅ |
+| 8 | `cd` builtin (absolute & relative paths) | ✅ |
+| 9 | Single & double quote parsing | ✅ |
+| 10 | Output redirection (`>`, `1>`, `>>`, `1>>`) | ✅ |
+| 11 | Stderr redirection (`2>`, `2>>`) | ✅ |
+| 12 | Tab completion — commands | ✅ |
+| 13 | Tab completion — files & directories | ✅ |
+| 14 | `history` builtin (`-r`, `-w`, `-a`, `HISTFILE`) | ✅ |
+| 15 | Pipelines (`\|`) | ✅ |
 
-```sh
-codecrafters submit
-```
+---
 
-Time to move on to the next stage!
+## 🚀 Features
 
-# Stage 2 & beyond
+- **REPL loop** — persistent prompt that reads, evaluates, and prints results
+- **Built-in commands** — `echo`, `exit`, `pwd`, `cd`, `type`, `history`
+- **External command execution** — resolves executables from `PATH` and runs them via `subprocess`
+- **Quote handling** — correctly parses single-quoted and double-quoted strings using `shlex`
+- **I/O redirection** — supports `>`, `1>`, `>>`, `1>>`, `2>`, `2>>` for stdout and stderr
+- **Pipelines** — chains multiple commands together with `|`, handling both builtins and external processes
+- **Tab completion** — completes command names and file/directory paths; rings the bell on ambiguity and lists all matches on a double-tab
+- **History** — tracks command history in-session and persists to/from a file via `HISTFILE`, with `-r`, `-w`, `-a` flags and `history N` support
 
-Note: This section is for stages 2 and beyond.
 
-1. Ensure you have `uv` installed locally
-1. Run `./your_program.sh` to run your program, which is implemented in
-   `app/main.py`.
-1. Run `codecrafters submit` to submit your solution to CodeCrafters. Test
-   output will be streamed to your terminal.
